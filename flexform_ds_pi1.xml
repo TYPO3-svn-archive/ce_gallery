@@ -237,14 +237,18 @@
 					<category>
 						<TCEforms>
 							<label>LLL:EXT:ce_gallery/locallang_db.xml:tx_ce_photogallery_categories.categories</label>
-							<config>
-					      <type>select</type>
-					      <foreign_table>tx_dam_cat</foreign_table> 
-					      <foreign_table_where>ORDER BY tx_dam_cat.title</foreign_table_where>
-					      <size>5</size>  
-					      <minitems>0</minitems>
-					      <maxitems>99</maxitems>
-					    </config>
+	            <config type="array">
+                <form_type>user</form_type>
+                <userFunc>EXT:dam/lib/class.tx_dam_tcefunc.php:&amp;tx_dam_tceFunc-&gt;getSingleField_selectTree</userFunc>
+                <treeViewClass>EXT:dam/components/class.tx_dam_selectionCategory.php:&amp;tx_dam_selectionCategory</treeViewClass>
+                <treeViewBrowseable type="integer">0</treeViewBrowseable>
+                <type>select</type>
+                <foreign_table>tx_dam_cat</foreign_table>
+                <size type="integer">10</size>
+                <maxitems type="integer">25</maxitems>
+                <minitems type="integer">0</minitems>
+            </config>
+
 						</TCEforms>
 					</category>
 				</el>
