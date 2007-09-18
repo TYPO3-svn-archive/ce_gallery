@@ -1,0 +1,11 @@
+ceGallerySlideshow = PAGE
+ceGallerySlideshow {
+	typeNum = 753
+
+	10 < plugin.tx_cegallery_pi1
+
+	config {
+		no_cache = 1
+		admPanel = 0
+	}
+}

@@ -1,0 +1,196 @@
+plugin.tx_cegallery_pi1 = USER
+plugin.tx_cegallery_pi1 {
+  10.userFunc = tx_cegallery_pi1->main
+	_CSS_DEFAULT_STYLE (
+		.tx-cegallery-pi1-album_date {
+			font-size: 10px;
+	}
+
+  body {
+    margin: 0px;
+   }
+
+		div.tx-cegallery-pi1-album_entry{
+			float: left;
+			height: 195px;
+			width: 160px;
+			margin: 2px;
+			padding: 10px;
+			padding-bottom: 13px;
+			text-align: center;
+			top: inherit;
+			vertical-align: bottom;
+			background-color: #DFD9C2;
+		}
+
+		div.tx-cegallery-pi1-detail_entry{
+			padding-top: 20px;
+			padding-bottom: 10px;
+			text-align: center;
+		}		
+
+	div.tx-cegallery-pi1-slideControls{
+			padding-bottom: 10px;
+		}				
+
+		div.tx-cegallery-pi1-album_entry img, div.tx-cegallery-pi1-detail_entry img {
+				clear: both;
+				border: 1px solid #000000;
+		}
+
+		div.tx-cegallery-pi1-clearer {
+		 clear: both;
+		}
+
+		div.tx-cegallery-pi1-detail_header {
+		  padding-bottom: 10px;
+		}
+
+		div.tx-cegallery-pi1-detail_nav {
+			clear: both;
+			width: 385px;
+		}		
+
+		span.tx-cegallery-pi1-photo_prev {
+		 float: left;
+		 width: 50px;
+		}
+
+		span.tx-cegallery-pi1-photo_next {
+		 width: 50px;
+		 text-align: right;
+		 float: left;
+		}
+
+	  span.tx-cegallery-pi1-album_back_link {
+	    float: left;
+	    width: 285px;
+	    text-align: center;
+	  }
+
+	  span.tx-cegallery-pi1-pagebrowser_actual, span.tx-cegallery-pi1-pagebrowser_normal {
+	    padding-right: 8px;
+	  }
+
+	  span.tx-cegallery-pi1-pagebrowser_actual a {
+	    font-weight: bold;
+	  }
+
+	  div.tx-cegallery-pi1-pagebrowser {
+	    padding-bottom: 10px;
+	  }
+
+		div.tx-cegallery-pi1-page {
+ 			float: left;
+ 			padding-right: 10px;
+		}	  
+
+		#mySlideshow	{
+			width: 370px;
+			height: 370px;
+			z-index:5;
+			display: none;
+			overflow:hidden;
+			position: relative;
+			background-color: #DFD9C2;
+		}
+
+		#mySlideshow img
+		{
+			border: 0;
+			margin: 0;
+		}
+
+		#mySlideshow #slideInfoZone
+		{
+			position: absolute;
+			z-index: 10;
+			width: 100%;
+			margin: 0px;
+			left: 0;
+			bottom: 0;
+			height: 3em;
+			background: #333;
+			color: #fff;
+			text-indent: 0;
+		}
+
+		#slideInfoZone h2
+		{
+			padding: 0;
+			font-size: 12px;
+			margin: 0;
+			margin: 2px 5px;
+			font-weight: strong;
+			color: inherit;
+		}
+
+		#slideInfoZone p
+		{
+			padding: 0;
+			font-size: 10px;
+			margin: 2px 5px;
+			color: #eee;
+		}
+
+		#mySlideshow a
+		{
+			font-size: 100%;
+			text-decoration: none;
+			color: inherit;
+		}
+
+		#mySlideshow a.right, #mySlideshow a.left
+		{
+			position: absolute;
+			height: 100%;
+			width: 40%;
+			cursor: pointer;
+			z-index:10;
+			filter:alpha(opacity=20);
+			-moz-opacity:0.2;
+			-khtml-opacity: 0.2;
+			opacity: 0.2;
+		}
+
+		* html #mySlideshow a.right, * html #mySlideshow a.left
+		{
+			filter:alpha(opacity=50);
+		}
+
+		#mySlideshow a.right:hover, #mySlideshow a.left:hover
+		{
+			filter:alpha(opacity=80);
+			-moz-opacity:0.8;
+			-khtml-opacity: 0.8;
+			opacity: 0.8;
+		}
+
+		#mySlideshow a.left
+		{
+			left: 0;
+			top: 0;
+			background: url('/typo3conf/ext/ce_gallery/res/left.gif') no-repeat top left;
+		}
+
+		#mySlideshow a.right
+		{
+			right: 0;
+			top: 0;
+			background: url('/typo3conf/ext/ce_gallery/res/right.gif') no-repeat top right;
+		}
+
+		div.tx-cegallery-pi1-pagebrowser_back, div.tx-cegallery-pi1-pagebrowser_pages {
+			float: left;
+		}		
+		
+		div.tx-cegallery-pi1-pagebrowser_back {
+			width:75px;
+		}		
+		
+		div.tx-cegallery-pi1-slimbox_hidden_links {
+		  display: none;
+		}
+	)
+}
+
