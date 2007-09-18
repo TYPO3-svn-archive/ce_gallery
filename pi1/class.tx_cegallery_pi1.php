@@ -36,6 +36,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
     var $scriptRelPath = 'pi1/class.tx_cegallery_pi1.php'; // Path to this script relative to the extension dir.
     var $extKey = 'ce_gallery'; // The extension key.
     var $pi_checkCHash = true;
+    var $pi_USER_INT_obj = 0;
     var $slimbox = false;
     var $smoothslideshow = false;
 
@@ -71,11 +72,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
         // Configure caching
         $this->slimbox = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'slimbox', 'thumbnails');
         $this->smoothslideshow = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'smoothslideshow', 'detail');
-
-        $this->allowCaching = $this->conf["allowCaching"] ? 1 : 0;
-        if (!$this->allowCaching) {
-            $GLOBALS['TSFE']->set_no_cache();
-        }
 
         $thepage = $this->piVars['page'];
         // the page to display
@@ -251,10 +247,10 @@ class tx_cegallery_pi1 extends tslib_pibase {
             if ($lastitem['uid']) {
                 $albums .= '<div' . $this->pi_classParam('album_entry') . '>';
 
-                $thumbstr = '<br/>' . $this->pi_linkToPage($row['title'], $GLOBALS['TSFE']->id, '', array($this->prefixId .'[album]' => $row['uid'])) . '<br/>';
+                $thumbstr = '<br/>' . $this->pi_linkTP($row['title'], array($this->prefixId .'[album]' => $row['uid'], $this->prefixId .'[apage]' => 1), 1) . '<br/>';
                 $thumbstr .= '<span' . $this->pi_classParam('album_date') . '>' . $this->pi_getLL('last_entry') . date($this->pi_getLL('date_format'), $lastitem['crdate']) . '</span>';
 
-                $albums .= $this->buildLinkToThumb($imagePath, $uid, $altTag, '&'.$this->prefixId.'[album]=' . $row['uid'], $thumbstr);
+                $albums .= $this->buildLinkToThumb($imagePath, $uid, $altTag, '&'.$this->prefixId.'[album]='.$row['uid'].'&'.$this->prefixId.'[apage]=1', $thumbstr);
                 $albums .= '</div>';
                 $i++;
             }
@@ -817,12 +813,12 @@ var photo_count = ' . count($captions);
                 $pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_back') . '><span ' . $this->pi_classParam('pagebrowser_normal') . '>';
                 $vararr = $addvar;
                 array_push($vararr, array($pagevar => 1));
-                $pagebrowser .= $this->pi_linkToPage('&lt;&lt;', $GLOBALS['TSFE']->id, '', $vararr);
+                $pagebrowser .= $this->pi_linkTP('&lt;&lt;', $vararr, 1);
                 $pagebrowser .= '</span>';
                 $pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_normal') . '>';
                 $vararr = $addvar;
                 array_push($vararr, array($pagevar => $thispage - 1));
-                $pagebrowser .= $this->pi_linkToPage('&lt;', $GLOBALS['TSFE']->id, '', $vararr);
+                $pagebrowser .= $this->pi_linkTP('&lt;', $vararr, 1);
                 $pagebrowser .= '</span></div>';
             } else {
                 // $pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_back') . '>'.$this->pi_getLL('page').'</div>';
@@ -838,7 +834,7 @@ var photo_count = ' . count($captions);
                 }
                 $vararr = $addvar;
                 array_push($vararr, array($pagevar => $i));
-                $pagebrowser .= $this->pi_linkToPage($i, $GLOBALS['TSFE']->id, '', $vararr);
+                $pagebrowser .= $this->pi_linkTP($i, $vararr, 1);
                 $pagebrowser .= '</span>';
             }
             $pagebrowser .= '</div>';
@@ -846,12 +842,12 @@ var photo_count = ' . count($captions);
                 $pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_next') . '><span ' . $this->pi_classParam('pagebrowser_normal') . '>';
                 $vararr = $addvar;
                 array_push($vararr, array($pagevar => $thispage + 1));
-                $pagebrowser .= $this->pi_linkToPage('&gt;', $GLOBALS['TSFE']->id, '', $vararr);
+                $pagebrowser .= $this->pi_linkTP('&gt;', $vararr, 1);
                 $pagebrowser .= '</span>';
                 $pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_normal') . '>';
                 $vararr = $addvar;
                 array_push($vararr, array($pagevar => $numPages));
-                $pagebrowser .= $this->pi_linkToPage('&gt;&gt;', $GLOBALS['TSFE']->id, '', $vararr);
+                $pagebrowser .= $this->pi_linkTP('&gt;&gt;', $vararr, 1);
                 $pagebrowser .= '</span></div>';
             } else {
                 $pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_next') . '></div>';
@@ -923,6 +919,8 @@ var photo_count = ' . count($captions);
             $thumbItem['stdWrap.']['typolink.']['additionalParams'] = $linkstr;
         }
         $thumbItem['stdWrap.']['typolink.']['title'] = $title;
+        $thumbItem['stdWrap.']['typolink.']['useCacheHash'] = 1;
+
         // $thumbItem['stdWrap.']['typolink.']['useCacheHash'] = '1';
         // Initialize local cObject:
         $lCObj = t3lib_div::makeInstance('tslib_cObj');
