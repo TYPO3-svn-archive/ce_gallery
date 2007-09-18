@@ -77,14 +77,14 @@ class tx_cegallery_pi1 extends tslib_pibase {
             $GLOBALS['TSFE']->set_no_cache();
         }
 
-        $thepage = t3lib_div::_GP('page');
+        $thepage = $this->piVars['page'];
         // the page to display
         if (isset($thepage) && is_numeric($thepage)) {
             $page = (int)$thepage;
         } else {
             $page = 1;
         }
-        $theapage = t3lib_div::_GP('apage');
+        $theapage = $this->piVars['apage'];;
         // the page to display
         if (isset($theapage) && is_numeric($theapage)) {
             $apage = (int)$theapage;
@@ -92,9 +92,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
             $apage = 1;
         }
         $content = "";
-        $album = t3lib_div::_GP('album');
-        $detail = t3lib_div::_GP('detail');
-        $slideshow = t3lib_div::_GP('slideshow');
+        $album = $this->piVars['album'];
+        $detail = $this->piVars['detail'];
+        $slideshow = $this->piVars['slideshow'];
         if (isset($detail) && is_numeric($detail) && !isset($slideshow)) {
             if ($this->smoothslideshow) {
                 $GLOBALS['TSFE']->additionalHeaderData['js'] = '
@@ -151,9 +151,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
     function getAlbumList($page)
     {
         $list = '';
-        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, 'page');
+        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, $this->prefixId.'[page]');
         $list .= $this->getAlbum($page);
-        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, 'page');
+        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, $this->prefixId.'[page]');
         return $list;
     }
 
@@ -170,7 +170,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
     function getAlbumContents($album, $start, $page)
     {
         $content = '';
-        $pagebrowser = $this->pageBrowser($this->getNumPages($this->getNumItems($album)), $start, 'apage', array('album' => $album));
+        $pagebrowser = $this->pageBrowser($this->getNumPages($this->getNumItems($album)), $start, $this->prefixId.'[apage]', array($this->prefixId.'[album]' => $album));
         $content .= $pagebrowser;
         $content .= $this->getContent($album, $start, $page);
         $content .= $pagebrowser;
@@ -251,10 +251,10 @@ class tx_cegallery_pi1 extends tslib_pibase {
             if ($lastitem['uid']) {
                 $albums .= '<div' . $this->pi_classParam('album_entry') . '>';
 
-                $thumbstr = '<br/>' . $this->pi_linkToPage($row['title'], $GLOBALS['TSFE']->id, '', array('album' => $row['uid'])) . '<br/>';
+                $thumbstr = '<br/>' . $this->pi_linkToPage($row['title'], $GLOBALS['TSFE']->id, '', array($this->prefixId .'[album]' => $row['uid'])) . '<br/>';
                 $thumbstr .= '<span' . $this->pi_classParam('album_date') . '>' . $this->pi_getLL('last_entry') . date($this->pi_getLL('date_format'), $lastitem['crdate']) . '</span>';
 
-                $albums .= $this->buildLinkToThumb($imagePath, $uid, $altTag, '&album=' . $row['uid'], $thumbstr);
+                $albums .= $this->buildLinkToThumb($imagePath, $uid, $altTag, '&'.$this->prefixId.'[album]=' . $row['uid'], $thumbstr);
                 $albums .= '</div>';
                 $i++;
             }
@@ -323,7 +323,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
             $conf = array();
             $conf['parameter'] = $GLOBALS['TSFE']->id;
-            $conf['additionalParams'] = '&slideshow=' . $album . '&type=753';
+            $conf['additionalParams'] = '&'.$this->prefixId.'[slideshow]=' . $album . '&type=753';
             $conf['ATagParams'] = 'rel="lightbox" rev="width=' . $detailWidth . ',height=' . $detailHeight . '"';
             $conf['title'] = $this->pi_getLL('slideshow');
             $items .= $this->cObj->typoLink('&raquo; ' . $this->pi_getLL('slideshow'), $conf);
