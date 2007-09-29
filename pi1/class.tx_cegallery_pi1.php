@@ -53,6 +53,17 @@ class tx_cegallery_pi1 extends tslib_pibase {
     {
         // Getting configuration:
         $this->conf = $conf;
+        // Flexform stuff
+        
+        if (t3lib_extMgm::isLoaded('pmkslimbox')) {
+            $query = array('SELECT' => 'pi_flexform',
+                'FROM' => 'tt_content',
+                'WHERE' => 'pid = "' . $GLOBALS['TSFE']->id . '" AND CType="list" AND list_type="ce_gallery_pi1"'
+                );
+            $res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($query);
+            $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+            $this->cObj->data['pi_flexform'] = $row['pi_flexform'];
+        }
 
         $this->pi_setPiVarDefaults();
         // Loading localization data:
