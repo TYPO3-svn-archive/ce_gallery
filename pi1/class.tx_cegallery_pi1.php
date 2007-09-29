@@ -54,7 +54,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
         // Getting configuration:
         $this->conf = $conf;
         // Flexform stuff
-        
+
         if (t3lib_extMgm::isLoaded('pmkslimbox')) {
             $query = array('SELECT' => 'pi_flexform',
                 'FROM' => 'tt_content',
@@ -92,6 +92,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
         $album = $this->piVars['album'];
         $detail = $this->piVars['detail'];
         $slideshow = $this->piVars['slideshow'];
+        
         if (isset($detail) && is_numeric($detail) && !isset($slideshow)) {
             if ($this->smoothslideshow) {
                 $GLOBALS['TSFE']->additionalHeaderData['js'] = '
@@ -382,7 +383,13 @@ class tx_cegallery_pi1 extends tslib_pibase {
                     }
                 }
             } else {
-                $itemstr = '<br/>' . $this->pi_linkToPage($row['title'], $GLOBALS['TSFE']->id, '', array('detail' => $row['uid'], 'album' => $album));
+                $itemstr = '<br/>' . $this->pi_linkTP($row['title'],
+                	array(
+                		$this->prefixId.'[detail]' => $row['uid'],
+                		$this->prefixId.'[album]' => $album
+                	),
+                	true
+                );
             }
             if (!$pmkSlimbox || ($i > $start && $i <= ($start + $displayrows))) {
                 $conf = array();
@@ -390,7 +397,14 @@ class tx_cegallery_pi1 extends tslib_pibase {
                 if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'fullscreen', 'thumbnails')) {
                     $itemstr .= $this->cObj->typoLink(' (' . $this->pi_getLL('fullscreen') . ')', $conf) . '<br />';
                 }
-                $itemstr2 = $this->buildLinkToThumb($imagePath, $row['uid'], $altTag, '&detail=' . $row['uid'] . '&album=' . $album, $itemstr, $title, $pmkSlimbox);
+                $itemstr2 = $this->buildLinkToThumb($imagePath,
+                	$row['uid'],
+                	$altTag,
+                	'&' . $this->prefixId . '[detail]=' . $row['uid'] . '&' . $this->prefixId .  '[album]=' . $album,
+                	$itemstr,
+                	$title,
+                	$pmkSlimbox
+                );
                 $items .= '<div' . $this->pi_classParam('album_entry') . '>' . $itemstr2 . '</div>';
                 if ($i % $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbrownumber', 'thumbnails') == 0) {
                     $items .= '<div' . $this->pi_classParam('clearer') . '></div>';
@@ -600,7 +614,13 @@ var photo_count = ' . count($captions);
         $photo .= '<div' . $this->pi_classParam('detail_nav') . '>';
         $photo .= '<span' . $this->pi_classParam('photo_prev') . '>';
         if (isset($prevphoto['uid'])) {
-            $photo .= $this->pi_linkToPage($this->pi_getLL('prev'), $GLOBALS['TSFE']->id, '', array('album' => $album, 'detail' => $prevphoto['uid']));
+        		$photo .= $this->pi_linkTP($this->pi_getLL('prev'),
+        			array(
+        				$this->prefixId . '[album]' => $album,
+        				$this->prefixId . '[detail]' => $prevphoto['uid']
+        			),
+        			true
+        		);
         }
         $photo .= '&nbsp;</span>';
         $photo .= '<span' . $this->pi_classParam('album_back_link') . '>';
@@ -608,7 +628,13 @@ var photo_count = ' . count($captions);
         $photo .= '</span>';
         $photo .= '<span' . $this->pi_classParam('photo_next') . '>';
         if (isset($nextphoto['uid'])) {
-            $photo .= $this->pi_linkToPage($this->pi_getLL('next'), $GLOBALS['TSFE']->id, '', array('album' => $album, 'detail' => $nextphoto['uid']));
+        		$photo .= $this->pi_linkTP($this->pi_getLL('next'),
+        			array(
+        				$this->prefixId . '[album]' => $album,
+        				$this->prefixId . '[detail]' => $nextphoto['uid']
+        			),
+        			true
+        		);
         }
         $photo .= '&nbsp;</span>';
         $photo .= '</div>';
@@ -645,12 +671,13 @@ var photo_count = ' . count($captions);
         if (!t3lib_extMgm::isLoaded('pmkslimbox') || !$this->slimbox) {
             $photo .= '<span' . $this->pi_classParam('album_back_link') . '>';
             if (!$slideshow) {
-                $photo .= $this->pi_linkToPage('&raquo; ' . $this->pi_getLL('slideshow'), $GLOBALS['TSFE']->id, '', array('slideshow' => $album, 'detail' => $detail));
+                $photo .= $this->pi_linkToPage('&raquo; ' . $this->pi_getLL('slideshow'), $GLOBALS['TSFE']->id, '', array('slideshow' => $album, $this->prefixId . '[detail]' => $detail));
                 $photo .= '&nbsp;&nbsp;&nbsp;';
             }
             $photo .= $this->albumBackLink($album);
             $photo .= '</span><br/><br/>';
         }
+
         $photo .= '<div class="timedSlideshow" id="mySlideshow" style="width: ' . $detailWidth . 'px; height: ' . $detailHeight . 'px;"></div>';
 
         $res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
@@ -770,31 +797,32 @@ var photo_count = ' . count($captions);
         return $pages;
     }
 
-    /**
-     * Back to album link
-     *
-     * @param integer $album album uid
-     * @return string backlink html code
-     * @since 2006-07-26
-     * @author Christian Ehret <chris@ehret.name>
-     */
-    function albumBackLink($album)
-    {
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam_cat.title', // SELECT ...
-            'tx_dam_cat', // FROM ...
-            'tx_dam_cat.uid = ' . $album , // WHERE ...
-            '', // GROUP BY ...
-            '', // ORDER BY ...
-            '0,1' // LIMIT
-            );
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-        $backlink = '';
-        // $backlink .= '<div ' . $this->pi_classParam('albumbacklink') . '>';
-        $backlink .= $this->pi_getLL('back_to');
-        $backlink .= $this->pi_linkToPage($row['title'], $GLOBALS['TSFE']->id, '', array('album' => $album));
-        // $backlink .= '</div>';
-        return $backlink;
-    }
+	/**
+	 * Back to album link
+	 *
+	 * @param integer $album album uid
+	 * @return string backlink html code
+	 * @since 2006-07-26
+	 * @author Christian Ehret <chris@ehret.name>
+	 */
+		function albumBackLink($album)
+		{
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam_cat.title', // SELECT ...
+				'tx_dam_cat', // FROM
+				'tx_dam_cat.uid = ' . $album, // WHERE 
+				'', // GROUP BY
+				'', // ORDER BY
+				'0,1' // LIMIT
+			);
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$backlink = '';
+			$backlink .= $this->pi_getLL('back_to');
+			$backlink .= $this->pi_linkTP($row['title'],
+				array($this->prefixId . '[album]' => $album),
+				true
+			);
+			return $backlink;
+		}
 
     /**
      * Build page browser
