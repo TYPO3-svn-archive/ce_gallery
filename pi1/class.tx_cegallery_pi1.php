@@ -136,42 +136,46 @@ class tx_cegallery_pi1 extends tslib_pibase {
         return $this->pi_wrapInBaseClass($content);
     }
 
-    /**
-     * This function generates list of albums with paging.
-     *
-     * @param integer $page page number
-     * @return string HTML code for album list
-     * @since 2006-07-26
-     * @author Christian Ehret <chris@ehret.name>
-     */
-    function getAlbumList($page)
-    {
-        $list = '';
-        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, $this->prefixId.'[page]');
-        $list .= $this->getAlbum($page);
-        $list .= $this->pageBrowser($this->getNumPages($this->getNumCat()), $page, $this->prefixId.'[page]');
-        return $list;
-    }
+		/**
+		 * This function generates list of albums with paging.
+		 *
+		 * @param integer $page page number
+		 * @return string HTML code for album list
+		 * @since 2006-07-26
+		 * @author Christian Ehret <chris@ehret.name>
+		 */
+		function getAlbumList($page)
+		{
+			$pagebrowser = $this->pageBrowser(
+				$this->getNumPages($this->getNumCat()),
+				$page,
+				$this->prefixId.'[page]'
+			);
+			$list = $pagebrowser.$this->getAlbum($page).$pagebrowser;
+			return $list;
+		}
 
-    /**
-     * This function shows photos of a albums with paging.
-     *
-     * @param integer $album album id
-     * @param integer $start start
-     * @param integer $page page of listview
-     * @return string HTML code for album list
-     * @since 2006-07-26
-     * @author Christian Ehret <chris@ehret.name>
-     */
-    function getAlbumContents($album, $start, $page)
-    {
-        $content = '';
-        $pagebrowser = $this->pageBrowser($this->getNumPages($this->getNumItems($album)), $start, $this->prefixId.'[apage]', array($this->prefixId.'[album]' => $album));
-        $content .= $pagebrowser;
-        $content .= $this->getContent($album, $start, $page);
-        $content .= $pagebrowser;
-        return $content;
-    }
+		/**
+		 * This function shows photos of a albums with paging.
+		 *
+		 * @param integer $album album id
+		 * @param integer $start start
+		 * @param integer $page page of listview
+		 * @return string HTML code for album list
+		 * @since 2006-07-26
+		 * @author Christian Ehret <chris@ehret.name>
+		 */
+		function getAlbumContents($album, $start, $page)
+		{
+			$pagebrowser = $this->pageBrowser(
+			$this->getNumPages($this->getNumItems($album)),
+				$start,
+				$this->prefixId.'[apage]',
+				array($this->prefixId.'[album]' => $album)
+			);
+			$content = $pagebrowser.$this->getContent($album, $start, $page).$pagebrowser;
+			return $content;
+		}
 
     /**
      * This function shows a photo with paging.
