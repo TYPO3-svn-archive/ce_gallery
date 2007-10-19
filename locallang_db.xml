@@ -10,6 +10,7 @@
 			<label index="tt_content.tx_cegallery_dam_category">DAM Category</label>
 			<label index="tx_ce_photogallery.sheet_categories">Categories</label>
 			<label index="tx_ce_photogallery_categories.categories">Categories:</label>
+			<label index="tx_ce_photogallery_categories.recursive">Recursive:</label>
 			<label index="tx_ce_photogallery.sheet_thumbnails">Thumbnails</label>
 			<label index="tx_ce_photogallery.sheet_general">General</label>
 			<label index="tx_ce_photogallery_thumbnails.thumbwidth">Thumbnails width: </label>
@@ -17,8 +18,8 @@
 			<label index="tx_ce_photogallery_thumbnails.thumbquality">Thumbnails quality: </label>
 			<label index="tx_ce_photogallery_thumbnails.slimbox">Slimbox (pmkslimbox needed): </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbwidthLarge">Thumbnails width (Slimbox): </label>
-      <label index="tx_ce_photogallery_thumbnails.thumbheightLarge">Thumbnails height (Slimbox): </label>
-      <label index="tx_ce_photogallery_thumbnails.thumbqualityLarge">Thumbnails quality (Slimbox): </label>
+			<label index="tx_ce_photogallery_thumbnails.thumbheightLarge">Thumbnails height (Slimbox): </label>
+			<label index="tx_ce_photogallery_thumbnails.thumbqualityLarge">Thumbnails quality (Slimbox): </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbnumber">Thumbnails per page: </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbrownumber">Thumbnails per row: </label>
 			<label index="tx_ce_photogallery_thumbnails.orderby">Order by: </label>
@@ -42,6 +43,7 @@
 		<languageKey index="de" type="array">
 			<label index="tt_content.list_type_pi1">Foto Gallerie</label>
 			<label index="tt_content.tx_cegallery_dam_category">DAM Kategorie</label>
+			<label index="tx_ce_photogallery_categories.recursive">Rekursiv:</label>
 			<label index="tx_ce_photogallery.sheet_categories">Kategorien</label>
 			<label index="tx_ce_photogallery_categories.categories">Kategorien:</label>
 			<label index="tx_ce_photogallery.sheet_general">Generell</label>
@@ -49,7 +51,7 @@
 			<label index="tx_ce_photogallery_thumbnails.thumbwidth">Thumbnails Breite: </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbheight">Thumbnails Höhe: </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbquality">Thumbnails Qualität: </label>
-						<label index="tx_ce_photogallery_thumbnails.slimbox">Slimbox (pmkslimbox benötigt): </label>
+			<label index="tx_ce_photogallery_thumbnails.slimbox">Slimbox (pmkslimbox benötigt): </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbwidthLarge">Thumbnails Breite (Slimbox): </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbheightLarge">Thumbnails Höhe (Slimbox): </label>
 			<label index="tx_ce_photogallery_thumbnails.thumbqualityLarge">Thumbnails Qualität (Slimbox): </label>

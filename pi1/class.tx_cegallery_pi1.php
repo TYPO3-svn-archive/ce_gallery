@@ -186,17 +186,21 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} else {
 				$start = ($start-1) * $displayrows;
 		}
-		$this->pi_setPiVarDefaults();
-		$this->pi_loadLL(); // Loading the LOCAL_LANG values
+		$addWhere = '';
+		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
+		if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView'))
+			$addWhere .= ' or tx_dam_cat.parent_id IN ('.$categories.')';
+
 		$WHERE = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') ? ' tx_dam_cat.uid IN (' . $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') . ')' . $this->cObj->enableFields('tx_dam_cat') : '';
 		$FIELD = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') ? $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') : '';
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('FIELD( tx_dam_cat.uid, ' . $FIELD . ' ) AS sort, tx_dam_cat.title, tx_dam_cat.uid AS uid', // SELECT ...
 			'tx_dam_cat', // FROM ...
-			$WHERE, // WHERE ...
+			$WHERE.$addWhere, // WHERE ...
 			'', // GROUP BY ...
-			'sort', // ORDER BY ...
+			'sorting', // ORDER BY ...
 			"$start,  $displayrows" // LIMIT
-			);
+		);
+
 		$albums = "";
 		$i = 0;
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
