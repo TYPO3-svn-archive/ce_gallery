@@ -1,11 +1,14 @@
 ceGallerySlideshow = PAGE
 ceGallerySlideshow {
-	typeNum = 753
+	typeNum = {$extension.ce_gallery.typeNum}
 
 	10 < plugin.tx_cegallery_pi1
 
 	config {
-		no_cache = 1
+		disableAllHeaderCode = 1
+		#no_cache = 1
 		admPanel = 0
 	}
 }
+
+plugin.tx_cegallery_pi1.slideshowTypeNum = {$extension.ce_gallery.typeNum}

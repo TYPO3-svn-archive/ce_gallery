@@ -1,0 +1,2 @@
+# cat=basic//1; type=int+; label=Type ID: The type ID for the slideschow
+typeNum = 753

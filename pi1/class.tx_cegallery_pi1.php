@@ -35,8 +35,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	var $prefixId = 'tx_cegallery_pi1'; // Same as class name
 	var $scriptRelPath = 'pi1/class.tx_cegallery_pi1.php'; // Path to this script relative to the extension dir.
 	var $extKey = 'ce_gallery'; // The extension key.
-	var $pi_checkCHash = true;
-	var $pi_USER_INT_obj = 0;
+//	var $pi_checkCHash = true;
+	//var $pi_USER_INT_obj = 0;
 	var $slimbox = false;
 	var $smoothslideshow = false;
 
@@ -99,11 +99,11 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$content .= $this->getDetail($album, $detail);
 		} elseif (is_numeric($slideshow)) {
 			if ($this->slimbox) {
-				$GLOBALS['TSFE']->additionalHeaderData['js'] = '
-					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/prototype.lite.js') . '"></script>
-					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.js') . '"></script>
-					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.pack.js') . '"></script>
-					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/timed.slideshow.js') . '"></script>';
+				$content .= '
+					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/prototype.lite.js') . '"></script>
+					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.js') . '"></script>
+					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.pack.js') . '"></script>
+					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/timed.slideshow.js') . '"></script>';
 				$content .= $this->getSmoothDetail($slideshow, $detail, true);
 			} else {
 				$jsFile1 = $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/client_sniff.js');
@@ -119,9 +119,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 					var js_of = \'' . $this->pi_getLL('js_of') . '\';
 					var js_status_wait = \'' . $this->pi_getLL('js_status_wait') . '\';
 				</script>';
-				$jsCode .= '<script type="text/javascript" src="' . $jsFile1 . '"></script>
-						<script type="text/javascript" src="' . $jsFile2 . '"></script>';
-				$GLOBALS['TSFE']->additionalHeaderData["js"] = $jsCode;
+				$jsCode .= '<script type="text/javascript" src="/' . $jsFile1 . '"></script>
+						<script type="text/javascript" src="/' . $jsFile2 . '"></script>';
+				$content .= $jsCode;
 				$content .= $this->getSlideshow($slideshow);
 			}
 		} elseif (is_numeric($album)) {
@@ -186,19 +186,24 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} else {
 				$start = ($start-1) * $displayrows;
 		}
-		$addWhere = '';
-		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
-		if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView'))
-			$addWhere .= ' or tx_dam_cat.parent_id IN ('.$categories.')';
 
-		$WHERE = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') ? ' tx_dam_cat.uid IN (' . $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') . ')' . $this->cObj->enableFields('tx_dam_cat') : '';
-		$FIELD = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') ? $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView') : '';
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('FIELD( tx_dam_cat.uid, ' . $FIELD . ' ) AS sort, tx_dam_cat.title, tx_dam_cat.uid AS uid', // SELECT ...
-			'tx_dam_cat', // FROM ...
-			$WHERE.$addWhere, // WHERE ...
-			'', // GROUP BY ...
-			'sorting', // ORDER BY ...
-			"$start,  $displayrows" // LIMIT
+		$where = '';
+		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
+
+		  /* @TODO We need an error handler here */
+		if ($categories) {
+			$where .= 'tx_dam_cat.uid IN (' . $categories. ')';
+			if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView'))
+				$where .= ' or tx_dam_cat.parent_id IN ('.$categories.')';
+		}
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'tx_dam_cat.title, tx_dam_cat.uid AS uid',
+			'tx_dam_cat',
+			$where .  $this->cObj->enableFields('tx_dam_cat'),
+			'',
+			'sorting',
+			"$start,  $displayrows"
 		);
 
 		$albums = "";
@@ -212,8 +217,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$orderBy = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'); // ORDER BY ...
 			}
 
-			$res_lastitem = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate', // SELECT ...
-				'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
+			$res_lastitem = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate',
+				'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid',
 				'damcat.uid_foreign = ' . $row['uid'] . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
 				'', // GROUP BY ...
 				$orderBy,
@@ -295,15 +301,17 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			}
 			$_EXTKEY = $tmp_EXTKEY;
 
-			$conf = array();
-			$conf['parameter'] = $GLOBALS['TSFE']->id;
-			$conf['additionalParams'] = '&'.$this->prefixId.'[slideshow]=' . $album . '&type=753';
-			$conf['ATagParams'] = 'rel="lightbox" rev="width=' . $detailWidth . ',height=' . $detailHeight . '"';
-			$conf['title'] = $this->pi_getLL('slideshow');
+			$conf = array(
+				'useCacheHash' => 1,
+				'parameter' => $GLOBALS['TSFE']->id,
+				'additionalParams' => '&'.$this->prefixId.'[slideshow]=' . $album . '&type=' . $this->conf['slideshowTypeNum'],
+				'ATagParams' => 'rel="lightbox" rev="width=' . $detailWidth . ',height=' . $detailHeight . '"',
+				'title' => $this->pi_getLL('slideshow')
+			);
 			$items .= $this->cObj->typoLink('&raquo; ' . $this->pi_getLL('slideshow'), $conf);
 		} else {
 			$items .= $this->pi_linkTP('&raquo; ' . $this->pi_getLL('slideshow'),
-				array($this->prefixId . '[slideshow]' => $album));
+				array($this->prefixId . '[slideshow]' => $album), 1);
 		}
 
 		$items .= '&nbsp;&nbsp;&nbsp;';
@@ -399,7 +407,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getSlideshow($album)	{
-		$this->pi_setPiVarDefaults();
 		$detailQuality = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'quality', 'detail');
 		$detailWidth = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', 'detail');
 		$detailHeight = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', 'detail');
@@ -665,7 +672,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$left = ($detailWidth - $width) / 2;
 			$top = ($detailHeight - $height) / 2;
 			$photo .= 'mySlideData[countArticle++] = new Array(
-				\'' . $tmp . '\',
+				\'/' . $tmp . '\',
 				\'' . $left . 'px\',
 				\'' . $top . 'px\',
 				\'' . str_replace("\n", ' - ', str_replace("\r", ' - ', addslashes($row['title']))) . '\',
@@ -704,8 +711,20 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getNumCat()	{
-		$cats = split(',', $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView'));
-		return count($cats);
+		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
+		if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView')) {
+			$whereAdd = ' AND (tx_dam_cat.uid IN (' . $categories. ')' .
+				' or tx_dam_cat.parent_id IN ('.$categories.'))';
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'tx_dam_cat.uid',
+				'tx_dam_cat, tx_dam_mm_cat',
+				'tx_dam_mm_cat.uid_foreign=tx_dam_cat.uid' . $whereAdd .  $this->cObj->enableFields('tx_dam_cat'),
+				'tx_dam_cat.uid');
+			$ret = $GLOBALS['TYPO3_DB']->sql_num_rows ($res);
+		} else {
+			$ret = count(split(',', $categories));
+		}
+		return $ret;
 	}
 
 	/**
@@ -878,6 +897,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$html .= '</div>';
 		return $html;
 	}
+
 
 	/**
 	 * Generates the html-code for the detail photo

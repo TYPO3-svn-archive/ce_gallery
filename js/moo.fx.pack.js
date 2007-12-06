@@ -66,19 +66,19 @@ fx.Combo.prototype = {
 		}
 		if (this.options.width) this.w = new fx.Width(el, options);
 	},
-	
+
 	toggle: function() { this.checkExec('toggle'); },
 
 	hide: function(){ this.checkExec('hide'); },
-	
+
 	clearTimer: function(){ this.checkExec('clearTimer'); },
-	
+
 	checkExec: function(func){
 		if (this.o) this.o[func]();
 		if (this.h) this.h[func]();
 		if (this.w) this.w[func]();
 	},
-	
+
 	//only if width+height
 	resizeTo: function(hto, wto) {
 		if (this.h && this.w) {
@@ -189,13 +189,13 @@ fx.RememberHeight.prototype = Object.extend(new Remember(), {
 		this.fx = new fx.Height(this.el, this.options);
 		this.prefix = 'height';
 	},
-	
+
 	toggle: function(){
 		if (this.el.offsetHeight == 0) this.setCookie(this.el.scrollHeight);
 		else this.setCookie(0);
 		this.fx.toggle();
 	},
-	
+
 	resize: function(to){
 		this.setCookie(this.el.offsetHeight+to);
 		this.fx.custom(this.el.offsetHeight,this.el.offsetHeight+to);
