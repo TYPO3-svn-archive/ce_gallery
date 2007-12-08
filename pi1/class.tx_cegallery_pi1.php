@@ -272,8 +272,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$page = 0;
 		}
 
-		$items = '';
-
 		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('title, description',
 			'tx_dam_cat', // FROM ...
 			'uid = ' . $album . ' ' . $this->cObj->enableFields('tx_dam_cat')
@@ -281,23 +279,19 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		$thealbum = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res1);
 
-		$items .= '<div' . $this->pi_classParam('album_header') . '>';
-		$items .= '<h2' . $this->pi_classParam('album_header') . '>' . $thealbum['title'] . '</h2>';
-		$items .= '<p' . $this->pi_classParam('album_header') . '>' . $thealbum['description'] . '</p>';
-		$items .= '</div>';
-		$items .= '<div' . $this->pi_classParam('album_backlink') . '>';
+		$items = '<div' . $this->pi_classParam('album_header') . '>' .
+			'<h2' . $this->pi_classParam('album_header') . '>' . $thealbum['title'] . '</h2>' .
+			'<p' . $this->pi_classParam('album_header') . '>' . $thealbum['description'] . '</p>' .
+			'</div>' .
+			'<div' . $this->pi_classParam('album_backlink') . '>';
 
 		if ($this->slimbox && t3lib_extMgm::isLoaded('pmkslimbox')) {
 			$detailWidth = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', 'detail');
 			$detailHeight = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', 'detail');
-			$tmp_EXTKEY = $_EXTKEY;
-			$_EXTKEY = 'pmkslimbox';
-			require_once(PATH_site . t3lib_extMgm::siteRelPath($_EXTKEY) . 'ext_emconf.php');
-			if (t3lib_div::int_from_ver($GLOBALS['EM_CONF'][$_EXTKEY]['version']) < 1001000) {
+			if (t3lib_div::int_from_ver($GLOBALS['EM_CONF']['pmkslimbox']['version']) < 1001000) {
 					$detailWidth += 50;
 					$detailHeight += 50;
 			}
-			$_EXTKEY = $tmp_EXTKEY;
 
 			$conf = array(
 				'useCacheHash' => 1,
@@ -312,29 +306,23 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				array($this->prefixId . '[slideshow]' => $album), 1);
 		}
 
-		$items .= '&nbsp;&nbsp;&nbsp;';
-		$items .= $this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '');
-		$items .= '</div>';
+		$items .= '&nbsp;&nbsp;&nbsp;' .
+			$this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '') .
+			'</div>';
 
 		$limit = '';
 		if (!$this->slimbox || !t3lib_extMgm::isLoaded('pmkslimbox')) {
 			$limit = $start . ', ' . $displayrows;
 		}
 		$crdate = "DATE_FORMAT(tx_dam.crdate, '" . $this->pi_getLL('date_format') . "')";
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
-			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
-			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
-			'', // GROUP BY ...
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'), // ORDER BY ...
-			$limit // LIMIT
-		);
-
-		$res2 = $GLOBALS['TYPO3_DB']->SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
-			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
-			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
-			'', // GROUP BY ...
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'), // ORDER BY ...
-			$limit // LIMIT
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text,' .
+				'tx_dam.crdate, tx_dam.description',
+			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid',
+			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam'),
+			'',
+			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'),
+			$limit
 		);
 
 		$i = 0;
