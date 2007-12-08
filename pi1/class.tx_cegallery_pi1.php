@@ -35,8 +35,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	var $prefixId = 'tx_cegallery_pi1'; // Same as class name
 	var $scriptRelPath = 'pi1/class.tx_cegallery_pi1.php'; // Path to this script relative to the extension dir.
 	var $extKey = 'ce_gallery'; // The extension key.
-//	var $pi_checkCHash = true;
-	//var $pi_USER_INT_obj = 0;
+	var $pi_checkCHash = true;
+	var $pi_USER_INT_obj = 0;
 	var $slimbox = false;
 	var $smoothslideshow = false;
 
