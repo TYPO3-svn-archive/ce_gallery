@@ -274,13 +274,11 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		$items = '';
 
-		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('title, description', // SELECT ...
+		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('title, description',
 			'tx_dam_cat', // FROM ...
-			'uid = ' . $album . ' ' . $this->cObj->enableFields('tx_dam_cat') , // WHERE ...
-			'', // GROUP BY ...
-			'', // ORDER BY ...
-			'' // LIMIT
+			'uid = ' . $album . ' ' . $this->cObj->enableFields('tx_dam_cat')
 		);
+
 		$thealbum = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res1);
 
 		$items .= '<div' . $this->pi_classParam('album_header') . '>';
@@ -324,6 +322,14 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		}
 		$crdate = "DATE_FORMAT(tx_dam.crdate, '" . $this->pi_getLL('date_format') . "')";
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
+			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
+			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
+			'', // GROUP BY ...
+			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'), // ORDER BY ...
+			$limit // LIMIT
+		);
+
+		$res2 = $GLOBALS['TYPO3_DB']->SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
 			'', // GROUP BY ...
@@ -540,39 +546,69 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getDetail($album, $detail)	{
-		$this->pi_setPiVarDefaults();
-		$this->pi_loadLL(); // Loading the LOCAL_LANG values
 		$photo = '';
 
-		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description, tx_dam.tstamp', // SELECT ...
-			'tx_dam', // FROM ...
-			'tx_dam.uid = ' . $detail . ' AND tx_dam.file_mime_type = "image" ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
-			'', // GROUP BY ...
-			'', // ORDER BY ...
-			'0 , 1' // LIMIT
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.date_cr,' .
+				'tx_dam.date_mod, tx_dam.alt_text, tx_dam.crdate, tx_dam.description, tx_dam.tstamp',
+			'tx_dam',
+			'tx_dam.uid = ' . $detail . ' AND tx_dam.file_mime_type = "image" ' . $this->cObj->enableFields('tx_dam')
 		);
-		$thephoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res1);
+
+		$thephoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 		$imagePath = $thephoto['file_path'] . $thephoto['file_name'];
-		 // prev photo
-		$prevres = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid', // SELECT ...
-			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
-			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = "image" ' . $this->cObj->enableFields('tx_dam') . ' AND tx_dam.uid > ' . $thephoto['uid'], // WHERE ...
-			'', // GROUP BY ...
-			'uid', // ORDER BY ...
-			'0, 1' // LIMIT
-		);
 
-		$prevphoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($prevres);
+		$sortingToogle = array (
+			'DESC' => array('>', '<', 'ASC', ),
+			'ASC' => array('<', '>', 'DESC'));
 
-		$nextres = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid', // SELECT ...
-			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
-			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = "image" ' . $this->cObj->enableFields('tx_dam') . ' AND tx_dam.uid < ' . $thephoto['uid'], // WHERE ...
-			'', // GROUP BY ...
-			'uid DESC', // ORDER BY ...
-			'0, 1' // LIMIT
-		);
+		$sorting = split(' ',
+			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'));
+		list(, $sorting[3]) = split('\.', $sorting[0]);
 
-		$nextphoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($nextres);
+		$criterion = (is_numeric($thephoto[$sorting[3]]) ?
+			$thephoto[$sorting[3]]  : '\'' . $thephoto[$sorting[3]] . '\'');
+
+		$sql = array (
+			'SELECT' => 'tx_dam.uid',
+			'FROM' => 'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid',
+			'WHERE' => 'damcat.uid_foreign = ' . $album .
+				' AND tx_dam.file_mime_type = "image" ' .
+				' AND tx_dam.uid!=' . $detail .
+				$this->cObj->enableFields('tx_dam'),
+			'LIMIT' => '0,1');
+
+
+		$resPrev = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			$sql['SELECT'],
+			$sql['FROM'],
+			$sql['WHERE'] . ' AND (' . $sorting[0] . $sortingToogle[$sorting[1]][0] . $criterion .
+				' OR (tx_dam.uid' .$sortingToogle[$sorting[1]][0] . $thephoto['uid'] .
+				' AND ' . $sorting[0] . '=' . $criterion .  '))',
+			'',
+			$sorting[0] . ' ' . $sortingToogle[$sorting[1]][2] .
+				', tx_dam.uid  ' . $sortingToogle[$sorting[1]][2],
+			$sql['LIMIT']);
+
+		$resNext = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			$sql['SELECT'],
+			$sql['FROM'],
+			$sql['WHERE'] . ' AND (' . $sorting[0] . $sortingToogle[$sorting[1]][1] . $criterion .
+				' OR (tx_dam.uid' .$sortingToogle[$sorting[1]][1] . $thephoto['uid'] .
+				' AND ' . $sorting[0] . '=' . $criterion .  '))',
+			'',
+			$sorting[0] . ' ' . $sorting[1] . ', tx_dam.uid '  . $sorting[1],
+			$sql['LIMIT']);
+
+		$prevphoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resPrev);
+		$nextphoto = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resNext);
+/*
+		t3lib_div::debug($resPrev);
+		t3lib_div::debug($resNext);
+		t3lib_div::debug($criterion);
+		t3lib_div::debug($prevphoto);
+		t3lib_div::debug($nextphoto);
+*/
 
 		$photo .= '<div' . $this->pi_classParam('detail_header') . '>';
 		$photo .= '<h2' . $this->pi_classParam('detail_header') . '>' . $thephoto['title'] . '</h2>';
