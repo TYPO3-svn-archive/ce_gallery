@@ -1,0 +1,77 @@
+/* Sample RealUrl config for ce_gallery */
+
+$TYPO3_CONF_VARS['SC_OPTIONS'] ['t3lib/class.t3lib_tstemplate.php'] ['linkData-PostProc'] [] = 'EXT:realurl/class.tx_realurl.php:&tx_realurl->encodeSpURL';
+$TYPO3_CONF_VARS['SC_OPTIONS'] ['tslib/class.tslib_fe.php'] ['checkAlternativeIdMethods-PostProc'] [] = 'EXT:realurl/class.tx_realurl.php:&tx_realurl->decodeSpURL';
+$TYPO3_CONF_VARS['SC_OPTIONS'] ['t3lib/class.t3lib_tcemain.php'] ['clearAllCache_additionalTables'] ['tx_realurl_urldecodecache'] = 'tx_realurl_urldecodecache';
+$TYPO3_CONF_VARS['SC_OPTIONS'] ['t3lib/class.t3lib_tcemain.php'] ['clearAllCache_additionalTables'] ['tx_realurl_urlencodecache'] = 'tx_realurl_urlencodecache';
+$TYPO3_CONF_VARS['FE']['addRootLineFields'].= ',tx_realurl_pathsegment';
+$TYPO3_CONF_VARS['EXTCONF']['realurl']['_DEFAULT'] = array(
+        'init' => array (
+								'useCHashCache' => 1,
+                'enableCHashCache' => 1,
+                'respectSimulateStaticURLs' => 1,
+                'appendMissingSlash' => 'ifNotFile',
+                'enableUrlDecodeCache' => 1,
+                'enableUrlEncodeCace' => 1,
+        ),
+'preVars' => array (
+                array(
+                        'GETvar' => 'no_cache',
+                        'valueMap' => array(
+                                'no_cache' => 1,
+                        ),
+                        'noMatch' => 'bypass',
+                ),
+
+        ),
+        'postVarSets' => array(
+                '_DEFAULT' => array(
+					'album' => array(
+						array(
+							'GETvar' => 'tx_cegallery_pi1[album]',
+							'lookUpTable' => array(
+								'table' => 'tx_dam_cat',
+								'id_field' => 'uid',
+								'alias_field' => 'title',
+								'addWhereClause' => ' AND NOT deleted',
+								'useUniqueCache' => 1,
+								'useUniqueCache_conf' => array(
+									'strtolower' => 1,
+									'spaceCharacter' => '-',
+								),
+							),
+						)
+					),
+					'detail' => array(
+						array(
+							'GETvar' => 'tx_cegallery_pi1[detail]',
+							'lookUpTable' => array(
+								'table' => 'tx_dam',
+								'id_field' => 'uid',
+								'alias_field' => 'title',
+								'addWhereClause' => ' AND NOT deleted',
+								'useUniqueCache' => 1,
+								'useUniqueCache_conf' => array(
+									'strtolower' => 1,
+									'spaceCharacter' => '-',
+								),
+							),
+						)
+					),
+					'albumpage' => array(
+						array('GETvar' => 'tx_cegallery_pi1[apage]')
+					),
+
+                ),
+        ),
+        'pagePath' => array (
+                'type' => 'user',
+                'userFunc' => 'EXT:realurl/class.tx_realurl_advanced.php:&tx_realurl_advanced->main',
+                'spaceCharacter' => '_',
+                'languageGetVar' => 'L',
+                'expireDays' => 7,
+                'rootpage_id' => '1',
+        ),
+
+
+);
