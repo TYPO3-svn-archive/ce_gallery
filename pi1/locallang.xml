@@ -180,6 +180,51 @@
 			<label index="js_status_loading">Poza se încarcă...</label>
 			<label index="js_of">din</label>
 			<label index="js_status_wait">vă rog aşteptaţi...</label>
-		</languageKey>			
+		</languageKey>		
+		<languageKey index="fi" type="array">
+			<label index="viimeinen">last entry: </label>			
+			<label index="date_format">d-m-Y</label>
+			<label index="next">seuraava</label>
+			<label index="prev">edellinen</label>
+			<label index="back_to">takaisin </label>
+			<label index="back">takaisin</label>
+			<label index="back_to_overview">takasin alkunäkymään</label>
+			<label index="page">sivu: </label>
+			<label index="slideshow">diaesitys</label>
+			<label index="stop">seis</label>
+			<label index="backwards">takaperin</label>
+			<label index="repeat">toista</label>
+			<label index="delay">viive</label>
+			<label index="fullscreen">Kokoruutu</label>
+			<label index="second">sekunti</label>
+			<label index="seconds">sekuntia</label>
+			<label index="fade">himmennä</label>
+			<label index="blend">sekoita</label>
+			<label index="blinds">blinds</label>
+			<label index="checkerboard">ruudukko</label>
+			<label index="diagonal">diagonal</label>
+			<label index="doors">ovet</label>
+			<label index="gradient">väriliuku</label>
+			<label index="iris">iris</label>
+			<label index="pinwheel">pyörä</label>
+			<label index="pixelate">pikselöi</label>
+			<label index="radial">säteittäinen</label>
+			<label index="rain">sade</label>
+			<label index="slide">dia</label>
+			<label index="snow">lumi</label>
+			<label index="spiral">spiraali</label>
+			<label index="stretch">venytä</label>
+			<label index="random">aatunnainen</label>
+			<label index="js_play">toista</label>
+			<label index="js_stop">pysäytä</label>
+			<label index="js_status_stop">Diaesitys on pysäytetty, paina [toista] jatkaaksesi.</label>
+			<label index="js_status_playing">Diaesitys on käynnissä.</label>
+			<label index="js_forwards">eteenpäin</label>
+			<label index="js_backwards">taaksepäin</label>
+			<label index="js_status_loading">Kuva latautuun...</label>
+			<label index="js_of">/</label>
+			<label index="js_status_wait">odota...</label>
+		</languageKey>
+			
 	</data>
 </T3locallang>
