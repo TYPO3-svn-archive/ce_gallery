@@ -127,7 +127,15 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} elseif (is_numeric($album)) {
 			$content .= $this->getAlbumContents($album, $apage, $page);
 		} else {
-			$content .= $this->getAlbumList($page);
+         	//get the first category id and set album = category id
+            $album = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
+            //if there is only one category, already open the album and display its content
+            if (($this->getNumCat() == 1) && is_numeric($album)) {
+            	$content .= $this->getAlbumContents($album, $apage, $page);
+            //if there are more than one categories or if the album is not set correctly display the list of albums
+            } else {
+            	$content .= $this->getAlbumList($page);
+            }
 		}
 		return $this->pi_wrapInBaseClass($content);
 	}
@@ -306,9 +314,12 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				array($this->prefixId . '[slideshow]' => $album), 1);
 		}
 
-		$items .= '&nbsp;&nbsp;&nbsp;' .
-			$this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '') .
-			'</div>';
+		if ($this->getNumCat() > 1) {
+			$items .= '&nbsp;&nbsp;&nbsp;';
+			$items .= $this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '');
+		}
+
+		$items .= '</div>';
 
 		$limit = '';
 		if (!$this->slimbox || !t3lib_extMgm::isLoaded('pmkslimbox')) {
@@ -342,7 +353,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$conf['ATagParams'] = 'rel="lightbox[sb' . $GLOBALS['TSFE']->id . '_links]"';
 				$conf['title'] = $title;
 				if ($i > $start && $i <= ($start + $displayrows)) {
-					$itemstr = '<br />' . $this->cObj->typoLink($row['title'], $conf);
+					$itemstr = '<br /><span ' . $this->pi_classParam('imagetitle') . $this->cObj->typoLink($row['title'], $conf) . '</span>';
 				} else {
 					if ($i == $start + $displayrows + 1 || ($start != 0 && $i == 1)) {
 						$itemstr = '<div ' . $this->pi_classParam('slimbox_hidden_links') . '>';
