@@ -121,7 +121,7 @@ plugin.tx_cegallery_pi1 {
 			font-size: 12px;
 			margin: 0;
 			margin: 2px 5px;
-			font-weight: strong;
+			font-weight: bold;
 			color: inherit;
 		}
 
