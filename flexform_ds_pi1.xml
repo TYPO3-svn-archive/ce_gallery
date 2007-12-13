@@ -230,6 +230,16 @@
 							</config>
 						</TCEforms>
 					</recursive>
+					<showfirst>
+						<TCEforms>
+							<label>LLL:EXT:ce_gallery/locallang_db.xml:tx_ce_photogallery_categories.showfirst</label>
+							<config>
+								<type>check</type>
+								<size></size>
+								<default>0</default>
+							</config>
+						</TCEforms>
+					</showfirst>
 				</el>
 			</ROOT>
 		</categoryView>

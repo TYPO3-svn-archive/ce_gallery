@@ -11,6 +11,7 @@
 			<label index="tx_ce_photogallery.sheet_categories">Categories</label>
 			<label index="tx_ce_photogallery_categories.categories">Categories:</label>
 			<label index="tx_ce_photogallery_categories.recursive">Recursive:</label>
+			<label index="tx_ce_photogallery_categories.showfirst">Directly jump to first album if there is just one</label>
 			<label index="tx_ce_photogallery.sheet_thumbnails">Thumbnails</label>
 			<label index="tx_ce_photogallery.sheet_general">General</label>
 			<label index="tx_ce_photogallery_thumbnails.thumbwidth">Thumbnails width: </label>
@@ -44,6 +45,7 @@
 			<label index="tt_content.list_type_pi1">Foto Gallerie</label>
 			<label index="tt_content.tx_cegallery_dam_category">DAM Kategorie</label>
 			<label index="tx_ce_photogallery_categories.recursive">Rekursiv:</label>
+						<label index="tx_ce_photogallery_categories.showfirst">Direkt zum Album springen, falls keine weiteren vorhanden</label>
 			<label index="tx_ce_photogallery.sheet_categories">Kategorien</label>
 			<label index="tx_ce_photogallery_categories.categories">Kategorien:</label>
 			<label index="tx_ce_photogallery.sheet_general">Generell</label>

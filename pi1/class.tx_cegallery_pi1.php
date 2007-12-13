@@ -53,8 +53,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		 // Getting configuration:
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
-
-		 // Loading localization data:
 		$this->pi_loadLL();
 
 		 // Flexform stuff needed for type slideshow
@@ -90,7 +88,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$apage = 1;
 		}
 
-		$content = "";
+		$content = '';
 		$album = $this->piVars['album'];
 		$detail = $this->piVars['detail'];
 		$slideshow = $this->piVars['slideshow'];
@@ -127,15 +125,12 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} elseif (is_numeric($album)) {
 			$content .= $this->getAlbumContents($album, $apage, $page);
 		} else {
-         	//get the first category id and set album = category id
-            $album = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
-            //if there is only one category, already open the album and display its content
-            if (($this->getNumCat() == 1) && is_numeric($album)) {
-            	$content .= $this->getAlbumContents($album, $apage, $page);
-            //if there are more than one categories or if the album is not set correctly display the list of albums
-            } else {
-            	$content .= $this->getAlbumList($page);
-            }
+			list($numCat, $album) = $this->getNumCat();
+			if ($numCat == 1 && (int)$album && $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'showfirst', 'categoryView')) {
+				$content .= $this->getAlbumContents($album, $apage, $page);
+			} else {
+				$content .= $this->getAlbumList($page, $numCat);
+			}
 		}
 		return $this->pi_wrapInBaseClass($content);
 	}
@@ -148,9 +143,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @since 2006-07-26
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
-	function getAlbumList($page)	{
+	function getAlbumList($page, $numCat)	{
 		$pagebrowser = $this->pageBrowser(
-			$this->getNumPages($this->getNumCat()),
+			$this->getNumPages($numCat),
 			$page,
 			$this->prefixId.'[page]'
 		);
@@ -268,7 +263,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getContent($album, $start = -1, $page = -1) {
-		global $EM_CONF;
 		$displayrows = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbnumber', 'thumbnails');
 
 		if ($start <= 1 || !is_numeric($start)) {
@@ -755,9 +749,15 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				'tx_dam_cat, tx_dam_mm_cat',
 				'tx_dam_mm_cat.uid_foreign=tx_dam_cat.uid' . $whereAdd .  $this->cObj->enableFields('tx_dam_cat'),
 				'tx_dam_cat.uid');
-			$ret = $GLOBALS['TYPO3_DB']->sql_num_rows ($res);
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$ret = array (
+				$GLOBALS['TYPO3_DB']->sql_num_rows ($res),
+				$row['uid']);
 		} else {
-			$ret = count(split(',', $categories));
+			$categories = split(',', $categories);
+			$ret = array(
+				count($categories),
+				$categories[0]);
 		}
 		return $ret;
 	}
