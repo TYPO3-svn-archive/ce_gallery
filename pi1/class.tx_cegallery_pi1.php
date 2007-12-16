@@ -37,8 +37,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	var $extKey = 'ce_gallery'; // The extension key.
 	var $pi_checkCHash = true;
 	var $pi_USER_INT_obj = 0;
-	var $slimbox = false;
-	var $smoothslideshow = false;
+	var $lConf = array();
 
 	/**
 	 * The main method of the PlugIn
@@ -54,21 +53,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
+		$this->init();
 
-		 // Flexform stuff needed for type slideshow
-		if (!$this->cObj->data['pi_flexform']) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pi_flexform',
-				'tt_content',
-				'pid = ' . $GLOBALS['TSFE']->id . ' AND CType="list" AND list_type="ce_gallery_pi1"'
-			);
-			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-			$this->cObj->data['pi_flexform'] = $row['pi_flexform'];
-		}
-
-		$this->pi_initPIFlexForm();
-
-		$this->slimbox = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'slimbox', 'general');
-		if ($this->slimbox && !t3lib_extMgm::isLoaded('pmkslimbox'))
+		if ($this->lConf['general']['slimbox'] && !t3lib_extMgm::isLoaded('pmkslimbox'))
 			return $this->pi_wrapInBaseClass('EXTENSION:pmslimbox is not loaded!');
 
 		$thepage = $this->piVars['page'];
@@ -96,7 +83,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		if (isset($detail)) {
 			$content .= $this->getDetail($album, $detail);
 		} elseif (is_numeric($slideshow)) {
-			if ($this->slimbox) {
+			if ($this->lConf['general']['slimbox']) {
 				$content .= '
 					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/prototype.lite.js') . '"></script>
 					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.js') . '"></script>
@@ -126,7 +113,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$content .= $this->getAlbumContents($album, $apage, $page);
 		} else {
 			list($numCat, $album) = $this->getNumCat();
-			if ($numCat == 1 && (int)$album && $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'showfirst', 'categoryView')) {
+			if ($numCat == 1 && (int)$album && $this->lConf['categoryView']['showfirst']) {
 				$content .= $this->getAlbumContents($album, $apage, $page);
 			} else {
 				$content .= $this->getAlbumList($page, $numCat);
@@ -134,6 +121,27 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		}
 		return $this->pi_wrapInBaseClass($content);
 	}
+
+
+	function init() {
+		if (!$this->cObj->data['pi_flexform']) {
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pi_flexform',
+				'tt_content',
+				'pid = ' . $GLOBALS['TSFE']->id . ' AND CType="list" AND list_type="ce_gallery_pi1"'
+			);
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$this->cObj->data['pi_flexform'] = $row['pi_flexform'];
+		}
+		$this->pi_initPIFlexForm();
+
+		$piFlexForm = $this->cObj->data['pi_flexform'];
+		foreach ( $piFlexForm['data'] as $sheet => $data )
+			foreach ( $data as $lang => $value )
+				foreach ( $value as $key => $val )
+					$this->lConf[$sheet][$key] = $this->pi_getFFvalue($piFlexForm, $key, $sheet);
+	}
+
+
 
 	/**
 	 * This function generates list of albums with paging.
@@ -183,20 +191,19 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getAlbum($start = -1) {
-		$displayrows = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbnumber', 'thumbnails');
 		if ($start <= 1 || !is_numeric($start)) {
 				$start = 0;
 		} else {
-				$start = ($start-1) * $displayrows;
+				$start = ($start-1) * $this->lConf['thumbnails']['thumbnumber'];
 		}
 
 		$where = '';
-		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
+		$categories = $this->lConf['categoryView']['category'];
 
 		  /* @TODO We need an error handler here */
 		if ($categories) {
 			$where .= 'tx_dam_cat.uid IN (' . $categories. ')';
-			if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView'))
+			if ($this->lConf['categoryView']['recursive'])
 				$where .= ' or tx_dam_cat.parent_id IN ('.$categories.')';
 		}
 
@@ -206,8 +213,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$where .  $this->cObj->enableFields('tx_dam_cat'),
 			'',
 			'sorting',
-			"$start,  $displayrows"
-		);
+			$start . ',' . $this->lConf['thumbnails']['thumbnumber']);
 
 		$albums = "";
 		$i = 0;
@@ -216,9 +222,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$crdate = "DATE_FORMAT(tx_dam.crdate, '" . $this->pi_getLL('date_format') . "')";
 			// random album image
 			$orderBy = 'RAND()';
-			if (!$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'randomAlbumImage', 'general')) {
-				$orderBy = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'); // ORDER BY ...
-			}
+			if (!$this->lConf['general']['randomAlbumImage'])
+				$orderBy = $this->lConf['thumbnails']['orderby'];
 
 			$res_lastitem = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate',
@@ -243,7 +248,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$albums .= '</div>';
 				$i++;
 			}
-			if ($i % $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbrownumber', 'thumbnails') == 0) {
+			if ($i % $this->lConf['thumbnails']['thumbrownumber'] == 0) {
 					$albums .= '<div' . $this->pi_classParam('clearer') . '></div>';
 			}
 		}
@@ -263,7 +268,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getContent($album, $start = -1, $page = -1) {
-		$displayrows = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbnumber', 'thumbnails');
+		$displayrows = $this->lConf['thumbnails']['thumbnumber'];
 
 		if ($start <= 1 || !is_numeric($start)) {
 				$start = 0;
@@ -287,9 +292,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'</div>' .
 			'<div' . $this->pi_classParam('album_backlink') . '>';
 
-		if ($this->slimbox && t3lib_extMgm::isLoaded('pmkslimbox')) {
-			$detailWidth = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', 'detail');
-			$detailHeight = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', 'detail');
+		if ($this->lConf['general']['slimbox'] && t3lib_extMgm::isLoaded('pmkslimbox')) {
+			$detailWidth = $this->lConf['detail']['width'];
+			$detailHeight = $this->lConf['detail']['height'];
 			if (t3lib_div::int_from_ver($GLOBALS['EM_CONF']['pmkslimbox']['version']) < 1001000) {
 					$detailWidth += 50;
 					$detailHeight += 50;
@@ -316,7 +321,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$items .= '</div>';
 
 		$limit = '';
-		if (!$this->slimbox || !t3lib_extMgm::isLoaded('pmkslimbox')) {
+		if (!$this->lConf['general']['slimbox'] || !t3lib_extMgm::isLoaded('pmkslimbox')) {
 			$limit = $start . ', ' . $displayrows;
 		}
 		$crdate = "DATE_FORMAT(tx_dam.crdate, '" . $this->pi_getLL('date_format') . "')";
@@ -326,7 +331,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid',
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam'),
 			'',
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'),
+			$this->lConf['thumbnails']['oderby'],
 			$limit
 		);
 
@@ -340,14 +345,15 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$title = $row['description'] ? $row['description'] : $row['title'];
 
 			$pmkSlimbox = false;
-			if ($this->slimbox && t3lib_extMgm::isLoaded('pmkslimbox')) {
+			if ($this->lConf['general']['slimbox'] && t3lib_extMgm::isLoaded('pmkslimbox')) {
 				$pmkSlimbox = true;
 				$conf = array();
 				$conf['parameter'] = $this->buildImage($imagePath, $row['uid'], 'detail');
 				$conf['ATagParams'] = 'rel="lightbox[sb' . $GLOBALS['TSFE']->id . '_links]"';
 				$conf['title'] = $title;
 				if ($i > $start && $i <= ($start + $displayrows)) {
-					$itemstr = '<br /><span ' . $this->pi_classParam('imagetitle') . $this->cObj->typoLink($row['title'], $conf) . '</span>';
+					$itemstr = '<br /><span' . $this->pi_classParam('imagetitle') . '>'  .
+						$this->cObj->typoLink($row['title'], $conf) . '</span>';
 				} else {
 					if ($i == $start + $displayrows + 1 || ($start != 0 && $i == 1)) {
 						$itemstr = '<div ' . $this->pi_classParam('slimbox_hidden_links') . '>';
@@ -373,7 +379,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			if (!$pmkSlimbox || ($i > $start && $i <= ($start + $displayrows))) {
 				$conf = array();
 				$conf['parameter'] = $imagePath;
-				if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'fullscreen', 'thumbnails')) {
+				if ($this->lConf['thumbnails']['fullscreen']) {
 					$itemstr .= $this->cObj->typoLink(' (' . $this->pi_getLL('fullscreen') . ')', $conf) . '<br />';
 				}
 				$itemstr2 = $this->buildLinkToThumb($imagePath,
@@ -385,9 +391,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 					$pmkSlimbox
 				);
 				$items .= '<div' . $this->pi_classParam('album_entry') . '>' . $itemstr2 . '</div>';
-				if ($i % $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbrownumber', 'thumbnails') == 0) {
+				if ($i % $this->lConf['thumbnails']['thumbrownumber'] == 0)
 					$items .= '<div' . $this->pi_classParam('clearer') . '></div>';
-				}
 			} else {
 				$items .= $itemstr;
 			}
@@ -406,9 +411,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getSlideshow($album)	{
-		$detailQuality = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'quality', 'detail');
-		$detailWidth = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', 'detail');
-		$detailHeight = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', 'detail');
+		$detailQuality = $this->lConf['detail']['quality'];
+		$detailWidth = $this->lConf['detail']['width'];
+		$detailHeight = $this->lConf['detail']['height'];
 
 		$this->pi_loadLL(); // Loading the LOCAL_LANG values
 		$photo = '';
@@ -416,10 +421,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate', // SELECT ...
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
-			'', // GROUP BY ...
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'), // ORDER BY ...
-			''// LIMIT
-		);
+			'',
+			$this->lConf['thumbnails']['orderby']);
+
 		$i = 0;
 		$captions = array();
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
@@ -555,8 +559,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'DESC' => array('>', '<', 'ASC', ),
 			'ASC' => array('<', '>', 'DESC'));
 
-		$sorting = split(' ',
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'));
+		$sorting = split(' ', $this->lConf['thumbnails']['orderby']);
+
 		list(, $sorting[3]) = split('\.', $sorting[0]);
 
 		$criterion = (is_numeric($thephoto[$sorting[3]]) ?
@@ -607,8 +611,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$photo .= '<h2' . $this->pi_classParam('detail_header') . '>' . $thephoto['title'] . '</h2>';
 		$conf = array();
 		$conf['parameter'] = $imagePath;
-		if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'fullscreen', 'thumbnails')) {
-				$photo .= '<span' . $this->pi_classParam('detail_fulllink') . '>' . $this->cObj->typoLink(' (' . $this->pi_getLL('fullscreen') . ')', $conf) . '</span>';
+		if ($this->$lConf['thumbnails']['fullscreen']) {
+				$photo .= '<span' . $this->pi_classParam('detail_fulllink') . '>' .
+					$this->cObj->typoLink(' (' . $this->pi_getLL('fullscreen') . ')', $conf) . '</span>';
 		}
 		$photo .= '</div>';
 		$photo .= '<div' . $this->pi_classParam('detail_nav') . '>';
@@ -662,19 +667,18 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getSmoothDetail($album, $detail, $slideshow = false)	{
-		$this->pi_loadLL(); // Loading the LOCAL_LANG values
-		$detailWidth = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', 'detail');
-		$detailHeight = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', 'detail');
+
+		$detailWidth = $this->lConf['detail']['width'];
+		$detailHeight = $this->lConf['detail']['height'];
 
 		$photo .= '<div class="timedSlideshow" id="mySlideshow" style="width: ' . $detailWidth . 'px; height: ' . $detailHeight . 'px;"></div>';
 
 		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
-			'', // GROUP BY ...
-			$this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'orderby', 'thumbnails'), // ORDER BY ...
-			"" // LIMIT
-		);
+			'',
+			$this->lConf['thumbnails']['oderby']);
+
 		$photo .= '<script type="text/javascript">';
 		$photo .= 'var mySlideData = new Array(); countArticle = 0;';
 
@@ -722,7 +726,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 			function startSlideshow() {
 			currentIter = ' . $start . ';
-			slideShowDelay = ' . $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'smoothslideshowdelay', 'general') . ';
+			slideShowDelay = ' . $this->lConf['general']['smoothslideshowdelay'] . ';
 			initSlideShow($(\'mySlideshow\'), mySlideData);
 			}
 			addLoadEvent(startSlideshow);';
@@ -740,8 +744,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getNumCat()	{
-		$categories = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'category', 'categoryView');
-		if ($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'recursive', 'categoryView')) {
+		$categories = $this->lConf['categoryView']['category'];
+		if ($this->lConf['categoryView']['recursive']) {
 			$whereAdd = ' AND (tx_dam_cat.uid IN (' . $categories. ')' .
 				' or tx_dam_cat.parent_id IN ('.$categories.'))';
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -791,8 +795,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
 	function getNumPages($numberOfItems) {
-		$this->pi_setPiVarDefaults();
-		$displayrows = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'thumbnumber', 'thumbnails');
+		$displayrows = $this->lConf['thumbnails']['thumbnumber'];
 		$pages = floor ($numberOfItems / $displayrows);
 		if ($numberOfItems % $displayrows <> 0) {
 				$pages++;
@@ -844,12 +847,12 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		if ($numPages > 1) {
 			$pagebrowser .= '<div' . $this->pi_classParam('page') . '>' . $this->pi_getLL('page') . '</div>';
 			if ($thispage > 1) {
-				$pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_back') . '><span ' . $this->pi_classParam('pagebrowser_normal') . '>';
+				$pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_back') . '><span' . $this->pi_classParam('pagebrowser_normal') . '>';
 				$vararr = $addvar;
 				array_push($vararr, array($pagevar => 1));
 				$pagebrowser .= $this->pi_linkTP('&lt;&lt;', $vararr, 1);
 				$pagebrowser .= '</span>';
-				$pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_normal') . '>';
+				$pagebrowser .= '<span' . $this->pi_classParam('pagebrowser_normal') . '>';
 				$vararr = $addvar;
 				array_push($vararr, array($pagevar => $thispage - 1));
 				$pagebrowser .= $this->pi_linkTP('&lt;', $vararr, 1);
@@ -862,9 +865,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				$i <= $numPages;
 				$i++) {
 				if ($i == $thispage) {
-						$pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_actual') . '>';
+						$pagebrowser .= '<span' . $this->pi_classParam('pagebrowser_actual') . '>';
 				} else {
-						$pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_normal') . '>';
+						$pagebrowser .= '<span' . $this->pi_classParam('pagebrowser_normal') . '>';
 				}
 				$vararr = $addvar;
 				array_push($vararr, array($pagevar => $i));
@@ -873,12 +876,12 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			}
 			$pagebrowser .= '</div>';
 			if ($thispage < $numPages) {
-				$pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_next') . '><span ' . $this->pi_classParam('pagebrowser_normal') . '>';
+				$pagebrowser .= '<div' . $this->pi_classParam('pagebrowser_next') . '><span' . $this->pi_classParam('pagebrowser_normal') . '>';
 				$vararr = $addvar;
 				array_push($vararr, array($pagevar => $thispage + 1));
 				$pagebrowser .= $this->pi_linkTP('&gt;', $vararr, 1);
 				$pagebrowser .= '</span>';
-				$pagebrowser .= '<span ' . $this->pi_classParam('pagebrowser_normal') . '>';
+				$pagebrowser .= '<span' . $this->pi_classParam('pagebrowser_normal') . '>';
 				$vararr = $addvar;
 				array_push($vararr, array($pagevar => $numPages));
 				$pagebrowser .= $this->pi_linkTP('&gt;&gt;', $vararr, 1);
@@ -957,9 +960,9 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 
 	function buildImage($img, $uid, $profile = 'thumbnails', $options = array()) {
-			$quality = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'quality', $profile);
-			$width = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'width', $profile);
-			$height = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'height', $profile);
+			$quality = $this->lConf[$profile]['quality'];
+			$width = $this->lConf[$profile]['width'];
+			$height = $this->lConf[$profile]['height'];
 			$info = pathinfo($img);
 			$name = substr($info['basename'], 0 , strlen($info['basename']) - strlen($info['extension']) - 1);
 			$ret = $target = 'typo3temp/ce_gallery/d_' . $uid . '_' . $width . '_' . $height . '_' . $quality . '.' . $info['extension'];

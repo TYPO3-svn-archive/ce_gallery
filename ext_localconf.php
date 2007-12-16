@@ -8,8 +8,12 @@ $ce_gallery_conf = unserialize($_EXTCONF);
 t3lib_extMgm::addTypoScriptConstants('extension.ce_gallery.typeNum = ' . $ce_gallery_conf['typeNum']);
 unset($ce_gallery_conf);
 
-if(t3lib_extMgm::isLoaded('pmkslimbox')) {
+if(t3lib_extMgm::isLoaded('pmkslimbox') && TYPO3_MODE == 'FE') {
+	$tmp_EXTKEY = $_EXTKEY;
+  $_EXTKEY = 'pmkslimbox';
 	require_once(PATH_site . t3lib_extMgm::siteRelPath('pmkslimbox') . 'ext_emconf.php');
+	$_EXTKEY = $tmp_EXTKEY;
+	unset ($tmp_EXTKEY);
 	if (t3lib_div::int_from_ver($GLOBALS['EM_CONF']['pmkslimbox']['version']) >= 1001000)
 		t3lib_extMgm::addTypoScript($_EXTKEY, 'constants',
 			 'plugin.pmkslimbox.iframeScrolling = no',

@@ -5,7 +5,7 @@ ceGallerySlideshow {
 	10 < plugin.tx_cegallery_pi1
 
 	config {
-		disableAllHeaderCode = 1
+		#disableAllHeaderCode = 1
 		#no_cache = 1
 		admPanel = 0
 	}
