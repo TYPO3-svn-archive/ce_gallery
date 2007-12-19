@@ -312,8 +312,10 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$items .= $this->pi_linkTP('&raquo; ' . $this->pi_getLL('slideshow'),
 				array($this->prefixId . '[slideshow]' => $album), 1);
 		}
-
-		if ($this->getNumCat() > 1) {
+		list($numCat, $t_album) = $this->getNumCat();
+		if ($numCat == 1 && $this->lConf['categoryView']['showfirst']) {
+		} else {
+		//if ($this->getNumCat() > 1) {
 			$items .= '&nbsp;&nbsp;&nbsp;';
 			$items .= $this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '');
 		}
