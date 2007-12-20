@@ -216,7 +216,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'sorting',
 			$start . ',' . $this->lConf['thumbnails']['thumbnumber']);
 
-		$albums = "";
+		$albums = '';
 		$i = 0;
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			unset($lastitem);
@@ -415,9 +415,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$detailWidth = $this->lConf['detail']['width'];
 		$detailHeight = $this->lConf['detail']['height'];
 
-		$this->pi_loadLL(); // Loading the LOCAL_LANG values
-		$photo = '';
-
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate', // SELECT ...
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
@@ -426,6 +423,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		$i = 0;
 		$captions = array();
+		$photo = '';
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$i++;
 			$imagePath = $row['file_path'] . $row['file_name'];
@@ -671,7 +669,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$detailWidth = $this->lConf['detail']['width'];
 		$detailHeight = $this->lConf['detail']['height'];
 
-		$photo .= '<div class="timedSlideshow" id="mySlideshow" style="width: ' . $detailWidth . 'px; height: ' . $detailHeight . 'px;"></div>';
+		$photo = '<div class="timedSlideshow" id="mySlideshow" style="width: ' . $detailWidth . 'px; height: ' . $detailHeight . 'px;"></div>';
 
 		$res1 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.alt_text, tx_dam.crdate, tx_dam.description', // SELECT ...
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
@@ -825,9 +823,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'0,1' // LIMIT
 		);
 		$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-		$backlink = '';
-		$backlink .= $this->pi_getLL('back_to');
-		$backlink .= $this->pi_linkTP($row['title'],
+		$backlink .= $this->pi_getLL('back_to') . $this->pi_linkTP($row['title'],
 			array($this->prefixId . '[album]' => $album),
 			true
 		);
@@ -847,8 +843,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @author Stephan Bauer <stephan_bauer@gmx.de>
 	 */
 	function pageBrowser($numPages, $thispage, $pagevar, $addvar = array()) {
-		$pagebrowser = '';
-		$pagebrowser .= '<div ' . $this->pi_classParam('pagebrowser') . '>';
+		$pagebrowser = '<div ' . $this->pi_classParam('pagebrowser') . '>';
 		if ($numPages > 1) {
 			$pagebrowser .= '<div' . $this->pi_classParam('page') . '>' . $this->pi_getLL('page') . '</div>';
 			if ($thispage > 1) {
