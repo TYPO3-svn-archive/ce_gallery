@@ -122,7 +122,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		return $this->pi_wrapInBaseClass($content);
 	}
 
-
 	function init() {
 		if (!$this->cObj->data['pi_flexform']) {
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pi_flexform',
@@ -140,8 +139,6 @@ class tx_cegallery_pi1 extends tslib_pibase {
 				foreach ( $value as $key => $val )
 					$this->lConf[$sheet][$key] = $this->pi_getFFvalue($piFlexForm, $key, $sheet);
 	}
-
-
 
 	/**
 	 * This function generates list of albums with paging.
@@ -302,8 +299,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 			$conf = array(
 				'useCacheHash' => 1,
-				'parameter' => $GLOBALS['TSFE']->id,
-				'additionalParams' => '&'.$this->prefixId.'[slideshow]=' . $album . '&type=' . $this->conf['slideshowTypeNum'],
+				'parameter' => $GLOBALS['TSFE']->id . ',' . $this->conf['slideshowTypeNum'],
+				'additionalParams' => '&'.$this->prefixId.'[slideshow]=' . $album,
 				'ATagParams' => 'rel="lightbox" rev="width=' . $detailWidth . ',height=' . $detailHeight . '"',
 				'title' => $this->pi_getLL('slideshow')
 			);
