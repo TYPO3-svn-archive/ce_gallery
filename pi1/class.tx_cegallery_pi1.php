@@ -203,17 +203,22 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		  /* @TODO We need an error handler here */
 		if ($categories) {
-			$where .= 'tx_dam_cat.uid IN (' . $categories. ')';
+			$where .= ' AND (tx_dam_cat.uid IN (' . $categories. ')';
 			if ($this->lConf['categoryView']['recursive'])
-				$where .= ' or tx_dam_cat.parent_id IN ('.$categories.')';
+				$where .= ' or tx_dam_cat.parent_id IN ('.$categories.'))';
 		}
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'tx_dam_cat.title, tx_dam_cat.uid AS uid',
-			'tx_dam_cat',
-			$where .  $this->cObj->enableFields('tx_dam_cat'),
-			'',
-			'sorting',
+			'tx_dam_cat,tx_dam_mm_cat, tx_dam',
+				'tx_dam_mm_cat.uid_foreign=tx_dam_cat.uid AND '.
+					'tx_dam.uid=tx_dam_mm_cat.uid_local AND ' .
+					'tx_dam.file_mime_type=\'image\'' .
+					$where .
+					$this->cObj->enableFields('tx_dam') .
+					$this->cObj->enableFields('tx_dam_cat'),
+			'tx_dam_cat.uid',
+			'tx_dam_cat.sorting',
 			$start . ',' . $this->lConf['thumbnails']['thumbnumber']);
 
 		$albums = '';
