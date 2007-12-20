@@ -331,7 +331,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid',
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam'),
 			'',
-			$this->lConf['thumbnails']['oderby'],
+			$this->lConf['thumbnails']['orderby'],
 			$limit
 		);
 
@@ -675,7 +675,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			'tx_dam_mm_cat damcat LEFT JOIN tx_dam ON damcat.uid_local = tx_dam.uid', // FROM ...
 			'damcat.uid_foreign = ' . $album . ' AND tx_dam.file_mime_type = \'image\' ' . $this->cObj->enableFields('tx_dam') , // WHERE ...
 			'',
-			$this->lConf['thumbnails']['oderby']);
+			$this->lConf['thumbnails']['orderby']);
 
 		$photo .= '<script type="text/javascript">';
 		$photo .= 'var mySlideData = new Array(); countArticle = 0;';

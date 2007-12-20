@@ -32,6 +32,8 @@
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_crasc">creation date ascending</label>
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_moddesc">modified date descending</label>
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_modasc">modified date ascending</label>
+			<label index="tx_ce_photogallery_thumbnails.orderby.file_namedesc">file name descending</label>
+			<label index="tx_ce_photogallery_thumbnails.orderby.file_nameasc">file name  ascending</label>
 			<label index="tx_ce_photogallery_thumbnails.fullscreen">Fullscreen link: </label>
 			<label index="tx_ce_photogallery_thumbnails.randomAlbumImage">Random album image: </label>
 			<label index="tx_ce_photogallery.sheet_detail">Detail view </label>
@@ -68,6 +70,8 @@
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_crasc">Erzeugt am aufsteigend</label>
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_moddesc">Verändert am absteigend</label>
 			<label index="tx_ce_photogallery_thumbnails.orderby.date_modasc">Verändert am aufsteigend</label>
+			<label index="tx_ce_photogallery_thumbnails.orderby.file_namedesc">Dateiname absteigend</label>
+			<label index="tx_ce_photogallery_thumbnails.orderby.file_nameasc">Dateiname aufsteigend</label>
 			<label index="tx_ce_photogallery_thumbnails.fullscreen">Vollbild Link: </label>
 			<label index="tx_ce_photogallery_thumbnails.randomAlbumImage">Zufälliges Albumbild: </label>
 			<label index="tx_ce_photogallery.sheet_detail">Detailansicht </label>

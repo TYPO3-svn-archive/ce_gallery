@@ -139,6 +139,14 @@
 												<numIndex index="0">LLL:EXT:ce_gallery/locallang_db.xml:tx_ce_photogallery_thumbnails.orderby.date_moddesc</numIndex>
 												<numIndex index="1">tx_dam.date_mod DESC</numIndex>
 											</numIndex>
+											<numIndex index="8" type="array">
+												<numIndex index="0">LLL:EXT:ce_gallery/locallang_db.xml:tx_ce_photogallery_thumbnails.orderby.file_nameasc</numIndex>
+												<numIndex index="1">tx_dam.file_name ASC</numIndex>
+											</numIndex>
+											<numIndex index="9" type="array">
+												<numIndex index="0">LLL:EXT:ce_gallery/locallang_db.xml:tx_ce_photogallery_thumbnails.orderby.file_namedesc</numIndex>
+												<numIndex index="1">tx_dam.file_name DESC</numIndex>
+											</numIndex>
 										</items>
 										<default>tx_dam.uid DESC</default>
 							</config>
