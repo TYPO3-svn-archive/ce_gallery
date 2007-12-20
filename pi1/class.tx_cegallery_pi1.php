@@ -114,7 +114,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} else {
 			list($numCat, $album) = $this->getNumCat();
 			if ($numCat == 1 && (int)$album && $this->lConf['categoryView']['showfirst']) {
-				$content .= $this->getAlbumContents($album, $apage, $page);
+				$content .= $this->getAlbumContents($album, $apage, $page, true);
 			} else {
 				$content .= $this->getAlbumList($page, $numCat);
 			}
@@ -168,14 +168,18 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @since 2006-07-26
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
-	function getAlbumContents($album, $start, $page)	{
+	function getAlbumContents($album, $start, $page, $hideBackLink = false)	{
 		$pagebrowser = $this->pageBrowser(
 		$this->getNumPages($this->getNumItems($album)),
 			$start,
 			$this->prefixId.'[apage]',
 			array($this->prefixId.'[album]' => $album)
 		);
-		$content = $pagebrowser.$this->getContent($album, $start, $page).$pagebrowser;
+
+		$content = $pagebrowser .
+			$this->getContent($album, $start, $page, $hideBackLink) .
+			$pagebrowser;
+
 		return $content;
 	}
 
@@ -264,7 +268,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 	 * @since 2006-07-26
 	 * @author Christian Ehret <chris@ehret.name>
 	 */
-	function getContent($album, $start = -1, $page = -1) {
+	function getContent($album, $start = -1, $page = -1, $hideBackLink = false) {
 		$displayrows = $this->lConf['thumbnails']['thumbnumber'];
 
 		if ($start <= 1 || !is_numeric($start)) {
@@ -309,10 +313,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$items .= $this->pi_linkTP('&raquo; ' . $this->pi_getLL('slideshow'),
 				array($this->prefixId . '[slideshow]' => $album), 1);
 		}
-		list($numCat, $t_album) = $this->getNumCat();
-		if ($numCat == 1 && $this->lConf['categoryView']['showfirst']) {
-		} else {
-		//if ($this->getNumCat() > 1) {
+		if (!$hideBackLink)  {
 			$items .= '&nbsp;&nbsp;&nbsp;';
 			$items .= $this->pi_linkToPage($this->pi_getLL('back_to_overview'), $GLOBALS['TSFE']->id, '', '');
 		}
