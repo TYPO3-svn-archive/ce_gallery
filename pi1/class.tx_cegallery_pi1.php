@@ -85,10 +85,10 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		} elseif (is_numeric($slideshow)) {
 			if ($this->lConf['general']['slimbox']) {
 				$content .= '
-					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/prototype.lite.js') . '"></script>
-					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.js') . '"></script>
-					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.pack.js') . '"></script>
-					<script type="text/javascript" src="/' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/timed.slideshow.js') . '"></script>';
+					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/prototype.lite.js') . '"></script>
+					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.js') . '"></script>
+					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/moo.fx.pack.js') . '"></script>
+					<script type="text/javascript" src="' . $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/timed.slideshow.js') . '"></script>';
 				$content .= $this->getSmoothDetail($slideshow, $detail, true);
 			} else {
 				$jsFile1 = $GLOBALS['TSFE']->tmpl->getFileName('EXT:ce_gallery/js/client_sniff.js');
@@ -104,8 +104,8 @@ class tx_cegallery_pi1 extends tslib_pibase {
 					var js_of = \'' . $this->pi_getLL('js_of') . '\';
 					var js_status_wait = \'' . $this->pi_getLL('js_status_wait') . '\';
 				</script>';
-				$jsCode .= '<script type="text/javascript" src="/' . $jsFile1 . '"></script>
-						<script type="text/javascript" src="/' . $jsFile2 . '"></script>';
+				$jsCode .= '<script type="text/javascript" src="' . $jsFile1 . '"></script>
+						<script type="text/javascript" src="' . $jsFile2 . '"></script>';
 				$content .= $jsCode;
 				$content .= $this->getSlideshow($slideshow);
 			}
@@ -449,7 +449,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		$photo .= '<div' . $this->pi_classParam('slideControls') . '>
 			<form name="TopForm">
-			<a href="#" onClick="stopOrStart(); return false;">[<span id="stopOrStartText">' . $this->pi_getLL('js_play') . '</span>]</a>&nbsp;<a href="#" onClick="changeDirection(); return false;">[<span id="changeDirText">' . $this->pi_getLL('backwards') . '</span>]</a>&nbsp;
+			<a href="#" onclick="stopOrStart(); return false;">[<span id="stopOrStartText">' . $this->pi_getLL('js_play') . '</span>]</a>&nbsp;<a href="#" onClick="changeDirection(); return false;">[<span id="changeDirText">' . $this->pi_getLL('backwards') . '</span>]</a>&nbsp;
 			&nbsp;' . $this->pi_getLL('repeat') . ':&nbsp;<input type="checkbox" name="loopCheck"  onclick="toggleLoop();">
 			<br/>' . $this->pi_getLL('delay') . ':&nbsp;<select name="time" size="1"  onchange="reset_timer()" style="font-size:10px;">
 			<option value="1">1 ' . $this->pi_getLL('second') . '</option>
@@ -530,7 +530,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			/*play();*/
 		';
 		$photo .= '</script>';
-		$photo .= $this->pi_linkToPage($this->pi_getLL('back'), $GLOBALS['TSFE']->id, '', array('album' => $album));
+		$photo .= $this->pi_linkToPage($this->pi_getLL('back'), $GLOBALS['TSFE']->id, '', array($this->prefixId.'[album]' => $album));
 		$photo .= '</div>';
 
 		return $photo;
@@ -614,7 +614,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 		$photo .= '<h2' . $this->pi_classParam('detail_header') . '>' . $thephoto['title'] . '</h2>';
 		$conf = array();
 		$conf['parameter'] = $imagePath;
-		if ($this->$lConf['thumbnails']['fullscreen']) {
+		if ($this->lConf['thumbnails']['fullscreen']) {
 				$photo .= '<span' . $this->pi_classParam('detail_fulllink') . '>' .
 					$this->cObj->typoLink(' (' . $this->pi_getLL('fullscreen') . ')', $conf) . '</span>';
 		}
@@ -708,7 +708,7 @@ class tx_cegallery_pi1 extends tslib_pibase {
 			$left = ($detailWidth - $width) / 2;
 			$top = ($detailHeight - $height) / 2;
 			$photo .= 'mySlideData[countArticle++] = new Array(
-				\'/' . $tmp . '\',
+				\'' . $tmp . '\',
 				\'' . $left . 'px\',
 				\'' . $top . 'px\',
 				\'' . str_replace("\n", ' - ', str_replace("\r", ' - ', addslashes($row['title']))) . '\',
