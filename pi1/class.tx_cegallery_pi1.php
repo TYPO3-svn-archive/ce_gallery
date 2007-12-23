@@ -203,9 +203,12 @@ class tx_cegallery_pi1 extends tslib_pibase {
 
 		  /* @TODO We need an error handler here */
 		if ($categories) {
-			$where .= ' AND (tx_dam_cat.uid IN (' . $categories. '))';
-			if ($this->lConf['categoryView']['recursive'])
+			$where .= ' AND (tx_dam_cat.uid IN (' . $categories. ')';
+			if ($this->lConf['categoryView']['recursive']) {
 				$where .= ' or tx_dam_cat.parent_id IN ('.$categories.'))';
+			} else {
+				$where .= ')';
+			}
 		}
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
