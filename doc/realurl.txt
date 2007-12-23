@@ -61,6 +61,9 @@ $TYPO3_CONF_VARS['EXTCONF']['realurl']['_DEFAULT'] = array(
 					'albumpage' => array(
 						array('GETvar' => 'tx_cegallery_pi1[apage]')
 					),
+					'page' => array(
+						array('GETvar' => 'tx_cegallery_pi1[page]')
+					),					
 
                 ),
         ),
