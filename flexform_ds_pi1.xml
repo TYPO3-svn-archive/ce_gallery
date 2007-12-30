@@ -223,7 +223,7 @@
 								<type>select</type>
 								<foreign_table>tx_dam_cat</foreign_table>
 								<size type="integer">10</size>
-								<maxitems type="integer">25</maxitems>
+								<maxitems type="integer">1000</maxitems>
 								<minitems type="integer">0</minitems>
 						</config>
 						</TCEforms>
